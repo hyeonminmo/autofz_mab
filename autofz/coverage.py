@@ -151,6 +151,8 @@ def gen_evaluator_args(target,
     binary_crash = os.path.join(evaluator_config['binary_crash_root'], group,
                                 target, target)
 
+    logger.info(f'coverage 001 - binary : {binary}, binary_crash : {binary_crash}')
+
     assert os.path.exists(seed)
     assert os.path.exists(binary)
     assert os.path.exists(binary_crash)

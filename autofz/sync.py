@@ -128,7 +128,7 @@ def new_afl_filename(fuzzer):
     index[fuzzer] += 1
 
     new_file_time = time.time()
-    logger.info(f'sync 01 - time: {new_file_time},   fuzzer : {fuzzer}, id : {new_index:06d}')
+    logger.info(f'sync 001 - time: {new_file_time}, fuzzer: {fuzzer}, id: {new_index:06d}')
 
     return f'id:{new_index:06d}'
 
@@ -139,6 +139,9 @@ def sync_test_case(target, fuzzer, host_root_dir, testcase):
     autofz_dir = os.path.join(fuzzer_root_dir, 'autofz')
     queue_dir = os.path.join(autofz_dir, 'queue')
     # logger.debug(f'copy {testcase.filename} to {queue_dir}')
+
+    logger.info(f'sync 002 - copy testcase : {testcase.filename}, queue_dir : {queue_dir}, autofz_dir : {autofz_dir}')
+
     new_name = new_afl_filename(fuzzer)
     new_filename = os.path.join(queue_dir, new_name)
 
