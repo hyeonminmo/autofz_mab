@@ -819,17 +819,17 @@ class Schedule_Base(SchedulingAlgorithm):
     def prep_parallel(self) -> bool:
         logger.debug('prep parallel unfixed prep')
         prep_time = self.prep_time
-
-        for fuzzer in FUZZERS:
-            num_prep = len(self.prep_fuzzers)
-            if fuzzer in self.prep_fuzzers:
-                update_fuzzer_limit(fuzzer, JOBS / num_prep)
-            else:
-                update_fuzzer_limit(fuzzer, 0)
-
         remain_time = prep_time
         prep_round = 1
+
         while remain_time > 0:
+
+            for fuzzer in FUZZERS:
+                num_prep = len(self.prep_fuzzers)
+                if fuzzer in self.prep_fuzzers:
+                    update_fuzzer_limit(fuzzer, JOBS /num_prep)
+                else:
+                    update_fuzzer_limit(fuzzer, 0)
             '''
             run 30 seconds for each fuzzer and see whether there is a winner
             '''
@@ -840,18 +840,16 @@ class Schedule_Base(SchedulingAlgorithm):
             '''
             detect whether there is a winner
             '''
+            current_fuzzer_info = get_fuzzer_info(self.fuzzers)
+            if prep_round == 1:
+                bitmap_diff =fuzzer_bitmap_diff(self.fuzzers, self.before_prep_fuzzer_info, current_fuzzer_info)
+            else:
+                bitmap_diff = fuzzer_bitmap_diff(self.fuzzers, previous_fuzzer_info, current_fuzzer_info)
+
+            logger.info(f'main 042 - fuzzer : {fuzzer}, fuzzer_bitmap_diff : {bitmap_diff[fuzzer].count()}')
+
 
             for fuzzer in FUZZERS:
-
-                current_fuzzer_info = get_fuzzer_info(self.fuzzers)
-
-                if prep_round == 1:
-                    bitmap_diff =fuzzer_bitmap_diff(self.fuzzers, self.before_prep_fuzzer_info, current_fuzzer_info)
-                else:
-                    bitmap_diff = fuzzer_bitmap_diff(self.fuzzers, previous_fuzzer_info, current_fuzzer_info)
-
-                logger.info(f'main 042 - fuzzer : {fuzzer}, fuzzer_bitmap_diff : {bitmap_diff[fuzzer].count()}')
-
                 if bitmap_diff[fuzzer].count() > self.tsFuzzers[fuzzer].threshold:
                     thompson.updateFuzzerCountPrep(self.tsFuzzers, fuzzer, 1)
                     self.tsFuzzers[fuzzer].threshold += self.tsFuzzers[fuzzer].threshold
@@ -1365,9 +1363,6 @@ class Schedule_Autofz(Schedule_Base):
             for fuzzer in FUZZERS:
                 fuzzer_threshold_sum += self.tsFuzzers[fuzzer].threshold
                 logger.info(f'main 044 - preparation  end result - fuzzer : { fuzzer }, fuzzer_success : { self.tsFuzzers[fuzzer].S }, fuzzer_fail : { self.tsFuzzers[fuzzer].F }, fuzzer run time_prep : {self.prep_time}, fuzzer threshold : {self.tsFuzzers[fuzzer].threshold}')
-            fuzzer_threshold_av = int(fuzzer_threshold_sum/len(FUZZERS))
-            logger.info(f'main 200 - fuzzer_threshold_av : {fuzzer_threshold_av}')
-            self.diff_threshold = fuzzer_threshold_av
 
         
         selected_fuzzers = thompson.selectFuzzer(self.tsFuzzers)
