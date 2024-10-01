@@ -47,7 +47,7 @@ class BitmapPolicy(Policy):
         array_bitmap = list(fuzzers_bitmap_count.items())
         sorted_bitmap = sorted(array_bitmap, key=lambda t: t[1], reverse=True)
         #prev_coverage = 2**32
-        now_rank = -1
+        now_rank = 0
         now_rank_num = 0
         rank = {}
         rank_num = {}
@@ -56,17 +56,17 @@ class BitmapPolicy(Policy):
             # NOTE: handle repetitive element
             ordered_fuzzers.append(f)
             val = cov
-            now_rank_num += 1
-            now_rank = 0
-
-            #if f in fuzzers:
-            #    rank[f] = 0
-            #    rank_num[0] = 1
-            #else:
-            #    rank[f] = 1
-            #    now_rank_num+=1
-            #    rank_num[1] = now_rank_num
-            logger.info(f'policy 001 -f: {f}, val : {val}, now_rank : {now_rank}, now_rank_num : {now_rank_num}')
+            #now_rank_num += 1
+            #now_rank = 0
+            
+            if f in fuzzers:
+                now_rank = 0
+                now_rank_num = 1
+            else:
+                now_rank_num+=1
+                now_rank+=1
+                
+            logger.info(f'policy 001 - f: {f}, val : {val}, now_rank : {now_rank}, now_rank_num : {now_rank_num}')
 
             rank[f] = now_rank
             rank_num[now_rank] = now_rank_num
@@ -87,6 +87,10 @@ class BitmapPolicy(Policy):
                 cpu_assign[fuzzer] = max_cores / rank_num[0]
             else:
                 cpu_assign[fuzzer] = 0
+
+            logger.info(f'policy 002 - fuzzer : {fuzzer}, cpu_assign : {cpu_assign[fuzzer]}')
+        logger.info(f'policy 003 - picked_fuzzer : {picked_fuzzer}')
+
         return picked_fuzzers, cpu_assign
 
     def calculate_cpu_with_last(self,
