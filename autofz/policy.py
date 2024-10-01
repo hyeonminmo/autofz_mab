@@ -89,7 +89,7 @@ class BitmapPolicy(Policy):
                 cpu_assign[fuzzer] = 0
 
             logger.info(f'policy 002 - fuzzer : {fuzzer}, cpu_assign : {cpu_assign[fuzzer]}')
-        logger.info(f'policy 003 - picked_fuzzer : {picked_fuzzer}')
+        logger.info(f'policy 003 - picked_fuzzers : {picked_fuzzers}')
 
         return picked_fuzzers, cpu_assign
 
